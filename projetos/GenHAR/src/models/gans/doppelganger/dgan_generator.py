@@ -15,7 +15,7 @@ class DCGANGenerator:
         reshape=True
         if reshape:
             n_amostras = X_train.shape[0]
-            X_train = X_train.values.reshape(n_amostras, 60, 6)
+            X_train = X_train.values.reshape(n_amostras, 6, 60).transpose(0,2,1)
             attributes = y_train.values.reshape(n_amostras, 1)
         
         # Configura o modelo DGAN
