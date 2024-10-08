@@ -1,6 +1,6 @@
 # Configuration for Synthetic Data Generation and Comparison
 datasets:
-  - name: MotionSense
+  - name: KuHar
     path: data
     type: standardized_view
     description: " XXX."
@@ -9,7 +9,7 @@ datasets:
             gyro
     reshape: None
 
-  - name: KuHar
+  - name: MotionSense
     path: data
     type: standardized_view
     description: " XXX."
