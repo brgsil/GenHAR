@@ -64,7 +64,7 @@ transformations:
 # Generative models
 generative_models:
 
-  - name: un_diffusion_unet1d
+  - name: diffusion_unet1d
     model: Diffusion
     is_conditional: False
     parameters:
