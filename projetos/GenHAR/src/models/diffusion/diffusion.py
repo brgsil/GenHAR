@@ -400,10 +400,12 @@ class DiffusionGenerator:
 
     def train(self, X_train, y_train):
         self.scaler = {}
+        self.losses = {}
         if self.config["is_conditional"]:
             self.train_conditional(X_train, y_train)
         else:
             self.train_separated(X_train, y_train)
+        return self.model, self.losses
 
     def train_separated(self, X_train, y_train):
         params = self.config["parameters"]
@@ -430,9 +432,10 @@ class DiffusionGenerator:
                 out_channel=params["out_channel"],
                 seq_length=60,
             ).to(device)
-            model = self.train_model(model, train_data)
+            model, loss_hist = self.train_model(model, train_data)
             self.model[class_label] = model
             self.scaler[class_label] = scaler
+            self.losses[class_label] = loss_hist
 
     def train_conditional(self, X_train, y_train):
         params = self.config["parameters"]
@@ -471,7 +474,8 @@ class DiffusionGenerator:
         assert X_data.shape[0] == Y_data.shape[0]
         assert X_data.shape[-2:] == (6, 60)
         assert Y_data.shape[1] == 1
-        self.model = self.train_model(model, X_data, Y_data)
+        self.model, loss_hist = self.train_model(model, X_data, Y_data)
+        self.losses['all'] = loss_hist
 
     def generate(self, n_samples):
         if self.model is None:
@@ -550,6 +554,7 @@ class DiffusionGenerator:
         else:
             dataloader = DataLoader(TensorDataset(x_train), batch_size=64, shuffle=True)
 
+        loss_hist = []
         for e in tqdm(range(self.config["epochs"])):
             for batch in tqdm(dataloader):
                 if y_train is not None:
@@ -565,4 +570,5 @@ class DiffusionGenerator:
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-        return model
+                loss_hist.append(loss.detach().item())
+        return model, loss_hist
